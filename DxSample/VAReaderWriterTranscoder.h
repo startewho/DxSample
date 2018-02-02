@@ -21,8 +21,8 @@
         VACReaderWriterTranscoder(void);
         ~VACReaderWriterTranscoder(void);
 
-		HRESULT	StatrtCapture(LPCWSTR savePath, HWND hwnd); //¿ªÊ¼Â¼ÖÆ
-		HRESULT	StopCature(void);	 //½áÊøÂ¼ÖÆ
+		HRESULT	StatrtCapture(LPCWSTR savePath, HWND hwnd); //å¼€å§‹å½•åˆ¶
+		HRESULT	StopCature(void);	 //ç»“æŸå½•åˆ¶
 
 
 

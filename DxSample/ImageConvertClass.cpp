@@ -13,26 +13,26 @@ bool ImageConvertClass::ConvertDIBToJPG(unsigned char * buffer, int nWidth, int 
 	unsigned char* pJpegBuffer=NULL;
 	unsigned long outSize;
 	jpegInfo.err = jpeg_std_error(&errorMgr);
-	//×¢²áÊ§°ÜµÄ»Øµ÷º¯Êı
+	//æ³¨å†Œå¤±è´¥çš„å›è°ƒå‡½æ•°
 	//toWriteInfo.err->error_exit = error_exit;
 	jpeg_create_compress(&jpegInfo);
-	//±£´æÑ¹ËõºóµÄÍ¼Æ¬
+	//ä¿å­˜å‹ç¼©åçš„å›¾ç‰‡
 	//FILE* fp = NULL;
 	//_wfopen_s(&fp, L"c:\\output.jpg", L"wb+");
 	//jpeg_stdio_dest(&toWriteInfo, fp);
-	//È·¶¨ÒªÓÃÓÚÊä³öÑ¹ËõµÄjpegµÄÊı¾İ¿Õ¼ä
+	//ç¡®å®šè¦ç”¨äºè¾“å‡ºå‹ç¼©çš„jpegçš„æ•°æ®ç©ºé—´
 	jpeg_mem_dest(&jpegInfo, &pJpegBuffer, &outSize);
 	jpegInfo.image_width = nWidth;
 	jpegInfo.image_height = nHeight;
 	//toWriteInfo.jpeg_width = nWidth / 2;
 	//toWriteInfo.jpeg_height = nHeight / 2;
-	jpegInfo.input_components = 4;// ÔÚ´ËÎª1,±íÊ¾»Ò¶ÈÍ¼£¬ Èç¹ûÊÇ²ÊÉ«Î»Í¼£¬ÔòÎª4
-	jpegInfo.in_color_space = JCS_EXT_BGRA; //JCS_GRAYSCALE±íÊ¾»Ò¶ÈÍ¼£¬JCS_RGB±íÊ¾²ÊÉ«Í¼Ïñ 
+	jpegInfo.input_components = 4;// åœ¨æ­¤ä¸º1,è¡¨ç¤ºç°åº¦å›¾ï¼Œ å¦‚æœæ˜¯å½©è‰²ä½å›¾ï¼Œåˆ™ä¸º4
+	jpegInfo.in_color_space = JCS_EXT_BGRA; //JCS_GRAYSCALEè¡¨ç¤ºç°åº¦å›¾ï¼ŒJCS_RGBè¡¨ç¤ºå½©è‰²å›¾åƒ 
 	jpeg_set_defaults(&jpegInfo);
-	jpeg_set_quality(&jpegInfo, 100, TRUE);	//ÉèÖÃÑ¹ËõÖÊÁ¿100±íÊ¾100%
+	jpeg_set_quality(&jpegInfo, 100, TRUE);	//è®¾ç½®å‹ç¼©è´¨é‡100è¡¨ç¤º100%
 	jpeg_start_compress(&jpegInfo, TRUE);
-	int nRowStride = nWidth * 4;	// Èç¹û²»ÊÇË÷ÒıÍ¼,´Ë´¦ĞèÒª³ËÒÔ4
-	JSAMPROW row_pointer[1];	// Ò»ĞĞÎ»Í¼
+	int nRowStride = nWidth * 4;	// å¦‚æœä¸æ˜¯ç´¢å¼•å›¾,æ­¤å¤„éœ€è¦ä¹˜ä»¥4
+	JSAMPROW row_pointer[1];	// ä¸€è¡Œä½å›¾
 	while (jpegInfo.next_scanline < jpegInfo.image_height)
 	{
 		row_pointer[0] = &buffer[jpegInfo.next_scanline*nRowStride];//
