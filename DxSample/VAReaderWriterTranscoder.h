@@ -11,6 +11,7 @@
 #include <Mfreadwrite.h>
 
 #include <d3d11.h>
+#include "ImageConvertClass.h"
 
 
 
@@ -61,7 +62,9 @@
         // connect the streams
         HRESULT ConnectStream(DWORD dwStreamIndex, const GUID& streamMajorType);
 
-		HRESULT SnapReadSample(IMFSample* pSample)
+		HRESULT SnapReadSample(IMFSample* pSample);
+
+		BOOL SaveBMP(unsigned char* data, int num, int bmpWidth, int bmpHeight);
 
  
 };
