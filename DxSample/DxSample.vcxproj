@@ -72,9 +72,9 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\libjpeg-turbo\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\libjpeg-turbo\lib;$(LibraryPath)</LibraryPath>
-    <ExecutablePath>C:\libjpeg-turbo\bin;$(ExecutablePath)</ExecutablePath>
+    <IncludePath>C:\Program Files %28x86%29\GnuWin32\include;C:\libjpeg-turbo\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Program Files %28x86%29\GnuWin32\lib;C:\libjpeg-turbo\lib;$(LibraryPath)</LibraryPath>
+    <ExecutablePath>C:\Program Files %28x86%29\GnuWin32\bin;C:\libjpeg-turbo\bin;$(ExecutablePath)</ExecutablePath>
     <ReferencePath>C:\libjpeg-turbo\bin;$(ReferencePath)</ReferencePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">

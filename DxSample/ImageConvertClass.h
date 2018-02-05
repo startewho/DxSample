@@ -1,7 +1,9 @@
 #pragma once
 
 #include <turbojpeg.h>
+#include <png.h>
 #include "Common.h"
+
 
 class ImageConvertClass
 {
