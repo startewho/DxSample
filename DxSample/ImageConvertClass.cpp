@@ -1,5 +1,5 @@
 #include "ImageConvertClass.h"
-#include <jpeglib.h>
+
 
 
 
@@ -103,7 +103,7 @@ bool ImageConvertClass::ConvertDIBToPNG(unsigned char * buffer, int nWidth, int 
 		info_ptr,
 		nWidth,
 		nHeight,
-		8,
+		depth,
 		PNG_COLOR_TYPE_RGB_ALPHA,
 		PNG_INTERLACE_NONE,
 		PNG_COMPRESSION_TYPE_DEFAULT,

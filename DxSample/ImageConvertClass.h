@@ -1,7 +1,8 @@
 #pragma once
 
-#include <turbojpeg.h>
+
 #include <png.h>
+#include <jpeglib.h>
 #include "Common.h"
 
 
