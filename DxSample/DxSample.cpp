@@ -108,12 +108,26 @@ HRESULT StopCap(HWND hwnd)
 	pTranscoder->StopCature();
 	
 	CloseHandle(hThread);
-	
 
 	delete pTranscoder;
 
 	return hr;
 }
+
+
+
+HRESULT StartPrtScn(ImageType imageType)
+{
+	HRESULT hr = S_OK;
+
+	pTranscoder->_imageType = imageType;
+	pTranscoder->PrtScn = true;
+
+
+	return hr;
+}
+
+
 
 //
 //  FUNCTION: MyRegisterClass()
@@ -204,8 +218,18 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				break;
 			case IDM_STOP:
 				StopCap(hWnd);
+				break;
+			case IDM_PRTSCN_BMP:
+				StartPrtScn(BMP);
+				break;
+			case IDM_PRTSCN_JPG:
+				StartPrtScn(JPG);
+				break;
+			case IDM_PRTSCN_PNG:
+				StartPrtScn(PNG);
+				break;
 
-                break;
+             
             default:
                 return DefWindowProc(hWnd, message, wParam, lParam);
             }
@@ -227,6 +251,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     }
     return 0;
 }
+
+
+
 
 
 

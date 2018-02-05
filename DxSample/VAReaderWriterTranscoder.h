@@ -24,10 +24,10 @@
 		HRESULT	StatrtCapture(LPCWSTR savePath, HWND hwnd); //开始录制
 		HRESULT	StopCature(void);	 //结束录制
 
-
-
 		HRESULT GetDevicesOfCat(GUID FilterCategory, CComPtr<IMFActivate>& pMFActivate);
-		BOOL Capting;
+		BOOL Capting; //是否开始录制
+		BOOL PrtScn;  //是否截图
+		ImageType _imageType;
         // Start the transcode
         HRESULT Transcode(LPCWSTR source, LPCWSTR sink);
 
@@ -62,9 +62,7 @@
         // connect the streams
         HRESULT ConnectStream(DWORD dwStreamIndex, const GUID& streamMajorType);
 
-		HRESULT SnapReadSample(IMFSample* pSample);
-
-		BOOL SaveBMP(unsigned char* data, int num, int bmpWidth, int bmpHeight);
+		HRESULT SnapReadSample(IMFSample* pSample, ImageType imageType);
 
  
 };

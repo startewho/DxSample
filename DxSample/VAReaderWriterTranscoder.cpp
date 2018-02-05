@@ -287,7 +287,7 @@ HRESULT VACReaderWriterTranscoder::StartReadSample(void)
 
 	IMFSample* pSample;
 
-	BOOL snap = true;
+	
 
 	while(hr==S_OK&&Capting)
 	{
@@ -310,13 +310,13 @@ HRESULT VACReaderWriterTranscoder::StartReadSample(void)
 					
 					}
 
-				if (snap)
+				if (PrtScn)
 				{
 					hr = m_pSourceReader->ReadSample(MF_SOURCE_READER_FIRST_VIDEO_STREAM, 0, &dwStreamIndex, &pdwStreamFlag, &llTimestamp, &pSample);
 
-					SnapReadSample(pSample);
+					SnapReadSample(pSample,_imageType);
 
-					snap = false;
+					PrtScn = false;
 
 				}
 
@@ -345,7 +345,7 @@ HRESULT VACReaderWriterTranscoder::StartReadSample(void)
 
 }
 
-HRESULT  VACReaderWriterTranscoder::SnapReadSample(IMFSample* pSample)
+HRESULT  VACReaderWriterTranscoder::SnapReadSample(IMFSample* pSample, ImageType _imageType)
 {
 	HRESULT hr = S_OK;
 
@@ -357,15 +357,35 @@ HRESULT  VACReaderWriterTranscoder::SnapReadSample(IMFSample* pSample)
 
 	buffer->Lock(&data, &max, &current);
 
-	SaveBMP(data, 1, 640, 480);
+
 
 	ImageConvertClass * convert = new ImageConvertClass();
 	
 	wchar_t * fileName=new wchar_t[20];
 
-	swprintf(fileName, 20, L".\\%d.jpg", 10);
+	
 
-	convert->ConvertDIBToJPG(data, 640, 480, fileName);
+	if (_imageType==BMP)
+	{
+		swprintf(fileName, 20, L".\\%d.bmp", 10);
+		convert->ConvertDIBToBMP(data, 640, 480, fileName);
+	}
+
+	if (_imageType == JPG)
+	{
+		swprintf(fileName, 20, L".\\%d.jpg", 10);
+		convert->ConvertDIBToJPG(data, 640, 480, fileName);
+	}
+
+	if (_imageType == PNG)
+	{
+		swprintf(fileName, 20, L".\\%d.png", 10);
+		convert->ConvertDIBToPNG(data, 640, 480, fileName);
+	}
+
+	
+
+	delete convert;
 
 	delete[] fileName;
 
@@ -386,79 +406,10 @@ HRESULT  VACReaderWriterTranscoder::SnapReadSample(IMFSample* pSample)
 
 
 
-BOOL VACReaderWriterTranscoder::SaveBMP(unsigned char* data, int num, int bmpWidth, int bmpHeight)
-{
-
-	wchar_t* filePath= new WCHAR[20];;
-	HANDLE file;
-	DWORD write;
-	
-	swprintf(filePath,20, L".\\%d.bmp", num);
-
-	if (PathFileExists(filePath))
-	{
-		DeleteFile(filePath);
-	}
-
-	file = CreateFile(filePath, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);  //Sets up the new bmp to be written to
-	int bytesofScanLine, i, j;
-	DWORD dwFileSize= bmpWidth* bmpHeight*32;
-
-	
-	bytesofScanLine = (bmpWidth % 4 == 0) ? bmpWidth : ((bmpWidth + 3) / 4 * 4);
-
-
-	BITMAPFILEHEADER bmfHeader;
-	bmfHeader.bfType = 19778;
-	
-	bmfHeader.bfReserved1 = 0;
-	bmfHeader.bfReserved2 = 0;
-	bmfHeader.bfOffBits = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER);
-	
-	
-
-	// fill the bmp file Infomation Header.
-	BITMAPINFOHEADER bmiHeader;
-	bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
-	bmiHeader.biWidth = bmpWidth;
-	bmiHeader.biHeight = bmpHeight;
-	bmiHeader.biPlanes = 1;
-	bmiHeader.biBitCount = 32;
-	bmiHeader.biCompression = BI_RGB;
-	bmiHeader.biSizeImage = 640*480*4;
-	bmiHeader.biXPelsPerMeter = 3780;
-	bmiHeader.biYPelsPerMeter = 3780;
-	bmiHeader.biClrUsed = 0;
-	bmiHeader.biClrImportant = 0;
-	
-
-	WriteFile(file, &bmfHeader, sizeof(bmfHeader), &write, NULL);
-	WriteFile(file, &bmiHeader, sizeof(bmiHeader), &write, NULL);
-
-
-
-    WriteFile(file, data,bmiHeader.biSizeImage, &write, NULL);
-	
-
-
-
-	DWORD error = GetLastError();
-
-	CloseHandle(file);
-
-	delete[] filePath;
-
-	return	 true;
-}
-
 
 HRESULT VACReaderWriterTranscoder::GetActivate(void)
 {
 	HRESULT hr = S_OK;
-
-
-
-
 
 
 
@@ -567,9 +518,6 @@ HRESULT VACReaderWriterTranscoder::MapStreams(void)
 
 	return hr;
 }
-
-
-
 
 
 

@@ -3,7 +3,15 @@
 
 
 
+bool DeleteFile(wchar_t * &outFile)
+{
+	if (PathFileExists(outFile))
+	{
+		DeleteFile(outFile);
+	}
 
+	return true;
+}
 
 
 bool ImageConvertClass::ConvertDIBToJPG(unsigned char * buffer, int nWidth, int nHeight, wchar_t * outFile)
@@ -64,6 +72,74 @@ bool ImageConvertClass::ConvertDIBToJPG(unsigned char * buffer, int nWidth, int 
 
 	return false;
 }
+
+bool ImageConvertClass::ConvertDIBToPNG(unsigned char * buffer, int nWidth, int nHeight, wchar_t * outFile)
+{
+	return false;
+}
+
+bool ImageConvertClass::ConvertDIBToBMP(unsigned char * buffer, int nWidth, int nHeight, wchar_t * outFile)
+{
+	HANDLE file;
+	DWORD write;
+
+	if (PathFileExists(outFile))
+	{
+		DeleteFile(outFile);
+	}
+
+	file = CreateFile(outFile, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);  //Sets up the new bmp to be written to
+	int bytesofScanLine, i, j;
+	DWORD dwFileSize = nWidth * nHeight * 32;
+
+
+	bytesofScanLine = (nWidth % 4 == 0) ? nWidth : ((nWidth + 3) / 4 * 4);
+
+
+	BITMAPFILEHEADER bmfHeader;
+	bmfHeader.bfType = 19778;
+
+	bmfHeader.bfReserved1 = 0;
+	bmfHeader.bfReserved2 = 0;
+	bmfHeader.bfOffBits = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER);
+
+
+
+	// fill the bmp file Infomation Header.
+	BITMAPINFOHEADER bmiHeader;
+	bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+	bmiHeader.biWidth = nWidth;
+	bmiHeader.biHeight = nHeight;
+	bmiHeader.biPlanes = 1;
+	bmiHeader.biBitCount = 32;
+	bmiHeader.biCompression = BI_RGB;
+	bmiHeader.biSizeImage = 640 * 480 * 4;
+	bmiHeader.biXPelsPerMeter = 3780;
+	bmiHeader.biYPelsPerMeter = 3780;
+	bmiHeader.biClrUsed = 0;
+	bmiHeader.biClrImportant = 0;
+
+
+	WriteFile(file, &bmfHeader, sizeof(bmfHeader), &write, NULL);
+	WriteFile(file, &bmiHeader, sizeof(bmiHeader), &write, NULL);
+
+
+
+	WriteFile(file, buffer, bmiHeader.biSizeImage, &write, NULL);
+
+
+
+
+	DWORD error = GetLastError();
+
+	CloseHandle(file);
+
+
+	return	 true;
+}
+
+
+
 
 ImageConvertClass::ImageConvertClass()
 {

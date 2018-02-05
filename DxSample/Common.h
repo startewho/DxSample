@@ -21,3 +21,11 @@
 #define BREAK_ON_FAIL(value)            if(FAILED(value)) break;
 #define BREAK_ON_NULL(value, newHr)     if(value == NULL) { hr = newHr; break; }
 
+enum ImageType {
+	BMP,
+	JPG,
+	PNG,
+
+};
+
+
