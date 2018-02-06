@@ -40,6 +40,7 @@ int nIntermediateAudioFormats1 = 2;
 
 	m_pAudioActiveate->GetAllocatedString(MF_DEVSOURCE_ATTRIBUTE_FRIENDLY_NAME, &szFriendlyName, &length);
 
+
 	
 
 	CComPtr<IMFMediaSource> videoSource;
@@ -232,10 +233,21 @@ HRESULT VACReaderWriterTranscoder::GetDevicesOfCat(GUID FilterCategory, CComPtr<
 
 	hr = MFCreateAttributes(&pAttributes, 1);
 
+
+	UINT32 widthOfFrame = 0;
+	UINT32 heightOfFrame = 0;
+
+
 	// Ask for source type = video capture devices
 	if (hr >= 0)
 	{
 		hr = pAttributes->SetGUID(MF_DEVSOURCE_ATTRIBUTE_SOURCE_TYPE, FilterCategory);
+
+		if (pAttributes != NULL)
+		{
+			MFGetAttributeSize(pAttributes, MF_MT_FRAME_SIZE, &widthOfFrame, &heightOfFrame);
+
+		}
 	}
 
 
@@ -353,34 +365,48 @@ HRESULT  VACReaderWriterTranscoder::SnapReadSample(IMFSample* pSample, ImageType
 	IMFMediaBuffer* buffer;
 	DWORD max, current;
 
+	CComPtr<IMFMediaType> pStreamMediaType;
+
+	UINT32 widthOfFrame = 0;
+	UINT32 heightOfFrame = 0;
+
+	
 	pSample->ConvertToContiguousBuffer(&buffer);
 
 	buffer->Lock(&data, &max, &current);
 
-
+	
 
 	ImageConvertClass * convert = new ImageConvertClass();
 	
 	wchar_t * fileName=new wchar_t[20];
 
+	if (width==0)
+	{
+		width = 640;
+	}
+	if (height==0)
+	{
+		height = 480;
+	}
 	
 
 	if (_imageType==BMP)
 	{
 		swprintf(fileName, 20, L".\\%d.bmp", 10);
-		convert->ConvertDIBToBMP(data, 640, 480, fileName);
+		convert->ConvertDIBToBMP(data, width, height, fileName);
 	}
 
 	if (_imageType == JPG)
 	{
 		swprintf(fileName, 20, L".\\%d.jpg", 10);
-		convert->ConvertDIBToJPG(data, 640, 480, fileName);
+		convert->ConvertDIBToJPG(data, width, height, fileName);
 	}
 
 	if (_imageType == PNG)
 	{
 		swprintf(fileName, 20, L".\\%d.png", 10);
-		convert->ConvertDIBToPNG(data, 640, 480, fileName);
+		convert->ConvertDIBToPNG(data, width, height, fileName);
 	}
 
 	
@@ -616,6 +642,9 @@ HRESULT VACReaderWriterTranscoder::GetTranscodeVideoType(
 
     do
     {
+
+		MFGetAttributeSize(pStreamMediaType, MF_MT_FRAME_SIZE, &width, &height);
+
         BREAK_ON_NULL(pStreamMediaType, E_POINTER);
 
         // wipe out existing data from the media type

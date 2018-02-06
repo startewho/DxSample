@@ -44,6 +44,9 @@
 		
         CComPtr<IMFSourceReader> m_pSourceReader;
         CComPtr<IMFSinkWriter> m_pSinkWriter;
+
+		UINT32 width;
+		UINT32 height;
       
         int m_nStreams;
 		
