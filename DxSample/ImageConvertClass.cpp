@@ -90,13 +90,16 @@ bool ImageConvertClass::ConvertDIBToPNG(unsigned char * buffer, int nWidth, int 
 		DeleteFile(outFile);
 	}
 
-	 _wfopen_s(&inputf,outFile, L"w");
+	 _wfopen_s(&inputf,outFile, L"wb");
 
 	png_byte ** row_pointers = NULL;  
 
 	png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+
+	png_init_io(png_ptr, inputf);
 	
 	info_ptr = png_create_info_struct(png_ptr);
+
 	
 
 	png_set_IHDR(png_ptr,
@@ -109,37 +112,50 @@ bool ImageConvertClass::ConvertDIBToPNG(unsigned char * buffer, int nWidth, int 
 		PNG_COMPRESSION_TYPE_DEFAULT,
 		PNG_FILTER_TYPE_DEFAULT);
 
+	png_write_info(png_ptr, info_ptr);
+
 	row_pointers = static_cast<png_byte**>(png_malloc(png_ptr, nHeight * sizeof(png_byte *)));
 	for (int y = 0; y < nHeight; ++y)
 	{
 		png_byte *row = static_cast<png_byte*>(png_malloc(png_ptr, bytesPerPixel * nWidth));
 		row_pointers[y] = row;
+
+		//row_pointers[y] = buffer + y * nWidth * 4;
 		for ( int x = 0; x < nWidth; ++x)
 		{
 			//pixel_t * pixel = pixel_at (bitmap, x, y);
 
-			unsigned char* r = buffer + y * nWidth * 4 + x * 4 + 0;
+			unsigned char* b = buffer + y * nWidth * 4 + x * 4 + 0;
 			unsigned char* g = buffer + y * nWidth * 4 + x * 4 + 1;
-			unsigned char* b = buffer + y * nWidth * 4 + x * 4 + 2;
+			unsigned char* r = buffer + y * nWidth * 4 + x * 4 + 2;
 			unsigned char* a = buffer + y * nWidth * 4 + x * 4 + 3;
 
-			*row++ = *b;
-			*row++ = *g;
 			*row++ = *r;
+			*row++ = *g;
+			*row++ = *b;
 			*row++ = *a;
+
+
+
 		}
 	}
 
-	png_init_io(png_ptr, inputf);
+	
+	
+
 	png_set_rows(png_ptr, info_ptr, row_pointers);
 
-	png_write_png(png_ptr, info_ptr, PNG_TRANSFORM_IDENTITY, NULL);
+	png_write_png(png_ptr, info_ptr, PNG_TRANSFORM_INVERT_ALPHA, NULL);
 
-	int status = 0;
+	png_write_end(png_ptr, NULL);
+
+	
 	for (int y = 0; y < nHeight; y++) {
 		png_free(png_ptr, row_pointers[y]);
 	}
 	png_free(png_ptr, row_pointers);
+
+	png_destroy_write_struct(&png_ptr, &info_ptr);
 
 	fclose(inputf);
 	
