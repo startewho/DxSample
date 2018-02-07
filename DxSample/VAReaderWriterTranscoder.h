@@ -47,6 +47,7 @@
 
 		UINT32 width;
 		UINT32 height;
+		SIZE videoSize;
       
         int m_nStreams;
 		

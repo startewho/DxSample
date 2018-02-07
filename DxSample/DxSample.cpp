@@ -75,6 +75,7 @@ DWORD WINAPI ClientThread(LPVOID lpParam)
 
 HRESULT StartCap(HWND hwnd)
 {
+	
 	HRESULT hr = S_OK;
 	
 	DWORD dwThread;

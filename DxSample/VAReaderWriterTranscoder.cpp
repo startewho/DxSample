@@ -390,24 +390,25 @@ HRESULT  VACReaderWriterTranscoder::SnapReadSample(IMFSample* pSample, ImageType
 		height = 480;
 	}
 	
+	time_t now = time(0);
 
-	if (_imageType==BMP)
+	switch (_imageType)
 	{
-		swprintf(fileName, 20, L".\\%d.bmp", 10);
-		convert->ConvertDIBToBMP(data, width, height, fileName);
-	}
+		default:
+			break;
+	 case BMP:
+			swprintf(fileName, 20, L".\\%d.bmp", now);
+			break;
+	 case PNG:
+			swprintf(fileName, 20, L".\\%d.png", now);
+			break;
+	 case JPG:
+			swprintf(fileName, 20, L".\\%d.jpg", now);
+			break;
 
-	if (_imageType == JPG)
-	{
-		swprintf(fileName, 20, L".\\%d.jpg", 10);
-		convert->ConvertDIBToJPG(data, width, height, fileName);
 	}
-
-	if (_imageType == PNG)
-	{
-		swprintf(fileName, 20, L".\\%d.png", 10);
-		convert->ConvertDIBToPNG(data, width, height, fileName);
-	}
+	
+	convert->ConvertDIBToImage(_imageType,data, width, height, fileName);
 
 	
 

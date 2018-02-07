@@ -229,6 +229,29 @@ bool ImageConvertClass::ConvertDIBToBMP(unsigned char * buffer, int nWidth, int 
 	return	 true;
 }
 
+bool ImageConvertClass::ConvertDIBToImage(ImageType imageType, unsigned char * buffer, int nWidth, int nHeight, wchar_t * outFile)
+{
+	bool result=false;
+	switch (imageType)
+	{
+	default:
+		break;
+	case BMP:
+		result=ConvertDIBToBMP(buffer, nWidth, nHeight, outFile);
+		break;
+
+	case PNG:
+		result = ConvertDIBToPNG(buffer, nWidth, nHeight, outFile);
+		break;
+
+	case JPG:
+		result = ConvertDIBToJPG(buffer, nWidth, nHeight, outFile);
+		break;
+	}
+
+	return result;
+}
+
 
 
 
