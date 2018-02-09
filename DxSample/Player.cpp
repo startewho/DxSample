@@ -38,6 +38,8 @@ CPlayer::CPlayer(HWND videoWindow, HRESULT* pHr) :
 
 CPlayer::~CPlayer(void)
 {
+	
+	HRESULT hr = S_OK;
     CloseSession();
 
 	
@@ -50,7 +52,7 @@ CPlayer::~CPlayer(void)
     // uninitialize COM
     CoUninitialize();
 
-	CloseHandle(m_closeCompleteEvent);
+	hr=CloseHandle(m_closeCompleteEvent);
     // close the event
     
 }
@@ -389,13 +391,14 @@ HRESULT CPlayer::Stop()
 		// make sure the session has been created
 		BREAK_ON_NULL(m_pSession, E_UNEXPECTED);
 
-		// pause
-		hr = m_pSession->Pause();
+		// stop
+		m_state = PlayerState_Closing;
+
 		hr = CloseSession();
 		BREAK_ON_FAIL(hr);
 
 		// if we got here, everything is properly paused
-		m_state = PlayerState_Stopped;
+		
 	} while (false);
 
 	return hr;
@@ -520,6 +523,7 @@ HRESULT CPlayer::CloseSession(void)
         m_state = PlayerState_Closing;
 
         // release the video display object
+	
         m_pVideoDisplay = NULL;
 
         // Call the asynchronous Close() method and then wait for the close
@@ -527,6 +531,8 @@ HRESULT CPlayer::CloseSession(void)
         if (m_pSession != NULL)
         {
             m_state = PlayerState_Closing;
+			
+			hr = m_pSession->Stop();
 
             hr = m_pSession->Close();
             

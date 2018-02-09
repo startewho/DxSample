@@ -267,21 +267,16 @@ HRESULT VACReaderWriterTranscoder::GetMixSource( IMFMediaSource** mixSource)
 
 	HRESULT hr = S_OK;
 	CComPtr<IMFActivate> pCameraActiveate;
-	CComPtr<IMFActivate> pAudioActiveate;
+
 	hr = GetDevicesOfCat(MF_DEVSOURCE_ATTRIBUTE_SOURCE_TYPE_VIDCAP_GUID, pCameraActiveate);
-	hr = GetDevicesOfCat(MF_DEVSOURCE_ATTRIBUTE_SOURCE_TYPE_AUDCAP_GUID, pAudioActiveate);
+	
 
-	CComPtr<IMFMediaSource> videoSource;
-	CComPtr<IMFMediaSource> aiduoSource;
+	
+	
 	CComPtr<IMFCollection> pCollection;
-	pCameraActiveate->ActivateObject(IID_PPV_ARGS(&videoSource));
-	pAudioActiveate->ActivateObject(IID_PPV_ARGS(&aiduoSource));
+	pCameraActiveate->ActivateObject(IID_PPV_ARGS(mixSource));
+	
 
-	MFCreateCollection(&pCollection);
-
-	pCollection->AddElement(videoSource);
-	pCollection->AddElement(aiduoSource);
-	hr=MFCreateAggregateSource(pCollection, mixSource);
 
 	return hr;
 }

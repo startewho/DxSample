@@ -105,7 +105,6 @@ HRESULT StartCap(HWND hwnd)
 
 	g_pPlayer->OpenSource(mixSource);
 
-	
 
 	g_pPlayer->Play();
 
@@ -128,7 +127,7 @@ HRESULT StopCap(HWND hwnd)
 
 		
 		g_pPlayer->Stop();
-		g_pPlayer->Release();
+	
 
 	}
 
