@@ -3,6 +3,7 @@
 #include "Common.h"
 #include "DxSample.h"
 #include "VAReaderWriterTranscoder.h"
+#include "Player.h"
 
 #define MAX_LOADSTRING 100
 
@@ -25,6 +26,8 @@ INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
 VACReaderWriterTranscoder* pTranscoder;
 HWND mHWND;
 HANDLE hThread;
+
+
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
                      _In_opt_ HINSTANCE hPrevInstance,
@@ -82,6 +85,8 @@ HRESULT StartCap(HWND hwnd)
 
 	pTranscoder = new VACReaderWriterTranscoder();
 
+
+
 	pTranscoder->Capting = true;
 	hThread=CreateThread( 
             NULL,                   // default security attributes
@@ -91,7 +96,7 @@ HRESULT StartCap(HWND hwnd)
             0,                      // use default creation flags 
             &dwThread);   // returns the thread identifier 
 	
-
+	
 
 	return hr;
 
@@ -188,6 +193,27 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    return TRUE;
 }
 
+void OnPaint(HWND hwnd)
+{
+	PAINTSTRUCT ps;
+	HDC hdc = BeginPaint(hwnd, &ps);
+
+	if (pTranscoder)
+	{
+		// We have a player with an active topology and a video renderer that can paint the
+		// window surface - ask the videor renderer (through the player) to redraw the surface.
+		pTranscoder->Repaint();
+	}
+	else
+	{
+		// The player topology hasn't been activated, which means there is no video renderer that 
+		// repaint the surface.  This means we must do it ourselves.
+		RECT rc;
+		GetClientRect(hwnd, &rc);
+		FillRect(hdc, &rc, (HBRUSH)COLOR_WINDOW);
+	}
+	EndPaint(hwnd, &ps);
+}
 //
 //  FUNCTION: WndProc(HWND, UINT, WPARAM, LPARAM)
 //
@@ -229,8 +255,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			case IDM_PRTSCN_PNG:
 				StartPrtScn(PNG);
 				break;
-
-             
+		
             default:
                 return DefWindowProc(hWnd, message, wParam, lParam);
             }
@@ -238,6 +263,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         break;
     case WM_PAINT:
         {
+		
+			OnPaint(hWnd);
             PAINTSTRUCT ps;
             HDC hdc = BeginPaint(hWnd, &ps);
             // TODO: Add any drawing code that uses hdc here...
@@ -247,6 +274,20 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     case WM_DESTROY:
         PostQuitMessage(0);
         break;
+	
+	case WM_SIZE:
+		if (pTranscoder != NULL)
+		{
+			LONG wdith = LOWORD(lParam); // resizing flag
+			LONG heigth = HIWORD(lParam);
+			RECT rect;
+			rect.top = 0.0;
+			rect.left = 0.0;
+			rect.right = wdith;
+			rect.bottom = heigth;
+			pTranscoder->Resize(&rect);
+		}
+		break;
     default:
         return DefWindowProc(hWnd, message, wParam, lParam);
     }

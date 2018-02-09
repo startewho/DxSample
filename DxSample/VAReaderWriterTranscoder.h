@@ -2,14 +2,12 @@
 #include "Common.h"
 #include <mfapi.h>
 #include <mfidl.h>
+#include <evr.h>
 #include <mferror.h>
 #include <Ks.h>
 #include <Codecapi.h>
-
 #include <mutex>
-
 #include <Mfreadwrite.h>
-
 #include <d3d11.h>
 #include "ImageConvertClass.h"
 
@@ -30,6 +28,11 @@
 		ImageType _imageType;
         // Start the transcode
         HRESULT Transcode(LPCWSTR source, LPCWSTR sink);
+		IMFMediaSource* GetMixSource();
+
+		// Video functionality
+		HRESULT       Repaint();  //视频重绘
+		HRESULT       Resize(LPRECT desRect);
 
     private:
 		HWND mainHwnd;
@@ -44,6 +47,8 @@
 		
         CComPtr<IMFSourceReader> m_pSourceReader;
         CComPtr<IMFSinkWriter> m_pSinkWriter;
+
+		CComPtr<IMFVideoDisplayControl> m_pVideoDisplay;//视频显示控件
 
 		UINT32 width;
 		UINT32 height;

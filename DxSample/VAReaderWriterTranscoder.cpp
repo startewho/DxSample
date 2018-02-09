@@ -57,8 +57,6 @@ int nIntermediateAudioFormats1 = 2;
 	MFCreateAggregateSource(pCollection,  &m_pMixSource);
 
 
-
-
 }
 
 
@@ -96,75 +94,46 @@ HRESULT VACReaderWriterTranscoder::StatrtCapture(LPCWSTR savePath, HWND  hwnd)
 
 		hr=pConfigAttrs->SetUINT32(MF_SOURCE_READER_ENABLE_VIDEO_PROCESSING, TRUE);
 
-		/*
-
-		// global declarations
-		CComPtr<IDXGISwapChain> swapchain;             // the pointer to the swap chain interface
-		CComPtr<ID3D11Device> dev;                     // the pointer to our Direct3D device interface
-		CComPtr<ID3D11DeviceContext> devcon;           // the pointer to our Direct3D device context
 		
-
-	
-		CComPtr<IMFDXGIDeviceManager> devManger;
-	
-
-		
-		
-	
-		DXGI_SWAP_CHAIN_DESC scd;
-
-		// clear out the struct for use
-		ZeroMemory(&scd, sizeof(DXGI_SWAP_CHAIN_DESC));
-
-		// fill the swap chain description struct
-		scd.BufferCount = 1;
-                                         // one back buffer
-		scd.BufferDesc.Format = DXGI_FORMAT_YUY2;     // use 32-bit color
-		scd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;      // how swap chain is to be used
-		scd.OutputWindow = hwnd;                                // the window to be used
-		scd.SampleDesc.Count = 4;                               // how many multisamples
-		scd.Windowed = TRUE;                                    // windowed/full-screen mode
-
-																// create a device, device context and swap chain using the information in the scd struct
-		D3D11CreateDeviceAndSwapChain(NULL,
-			D3D_DRIVER_TYPE_HARDWARE,
-			NULL,
-			NULL,
-			NULL,
-			NULL,
-			D3D11_SDK_VERSION,
-			&scd,
-			&swapchain,
-			&dev,
-			NULL,
-			&devcon);
-
-
-		
-		UINT resetToken;
-
-	
-		if (dev != NULL)
-		{
-			
-
-			MFCreateDXGIDeviceManager(&resetToken, &devManger);
-			hr =devManger->ResetDevice(dev, resetToken);
-			if (hr==S_OK)
-			{
-				pConfigAttrs->SetUnknown(MF_SOURCE_READER_D3D_MANAGER, devManger);
-			}
-			
-
-		}
-
-		*/
 
 		// create a source reader
 		hr = MFCreateSourceReaderFromMediaSource(m_pMixSource, pConfigAttrs, &m_pSourceReader);
 	
+
+		IMFMediaType *pType = NULL;
+		if (SUCCEEDED(hr))
+			hr = m_pSourceReader->GetCurrentMediaType((DWORD)MF_SOURCE_READER_FIRST_VIDEO_STREAM, &pType);
+		
+
+		CComPtr<IMFMediaSink> pSink;
+	
+		CComPtr<IMFStreamSink> pStream;
+		CComPtr<IMFGetService> pService;
+		DWORD count;
+		DWORD pdwCharacteristics;
+		CComPtr<IMFPresentationClock> pClock;
+		
+		hr = MFCreateVideoRenderer(__uuidof(IMFMediaSink),(void**)(&pSink));
+
+		hr = pSink->GetStreamSinkCount(&count);
+		hr = pSink->GetCharacteristics(&pdwCharacteristics);
+		hr = pSink->AddStreamSink(2, pType, &pStream);
+		hr = pSink->GetPresentationClock(&pClock);
+		//§³§à§Ó§ã§Ö§Þ §ß§Ö §á§à§Û§Þ§å §é§ä§à §Þ§ß§Ö §ã§Õ§Ö§Ý§Ñ§ä§î §ã IMFPresentationClock
+
+		hr = pSink->QueryInterface(_uuidof(IMFGetService),(void**)&pService);
+		hr = pService->GetService(MR_VIDEO_RENDER_SERVICE, IID_IMFVideoDisplayControl,(void**)&m_pVideoDisplay);
+		hr = m_pVideoDisplay->SetVideoWindow(hwnd);
+
+
+
+
 		// create a sink writer
 		hr = MFCreateSinkWriterFromURL(savePath, NULL, pConfigAttrs, &m_pSinkWriter);
+
+
+
+
 
 	
 
@@ -279,6 +248,35 @@ HRESULT VACReaderWriterTranscoder::Transcode(LPCWSTR source, LPCWSTR target)
 
 	return hr;
   
+}
+
+IMFMediaSource * VACReaderWriterTranscoder::GetMixSource()
+{
+	return m_pMixSource;
+}
+
+HRESULT VACReaderWriterTranscoder::Repaint()
+{
+	HRESULT hr = S_OK;
+
+	if (m_pVideoDisplay)
+	{
+		hr = m_pVideoDisplay->RepaintVideo();
+	}
+
+	return hr;
+}
+
+HRESULT VACReaderWriterTranscoder::Resize(LPRECT desRect)
+{
+	HRESULT hr = S_OK;
+
+	if (m_pVideoDisplay)
+	{
+		hr = m_pVideoDisplay->SetVideoPosition(NULL, desRect);
+	}
+
+	return hr;
 }
 
 

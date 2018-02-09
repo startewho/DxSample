@@ -102,7 +102,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>mfplat.lib;mfuuid.lib;mf.lib;Mfreadwrite.lib;d3d11.lib;Dxva2.lib;turbojpeg.lib;jpeg.lib;libpng16.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Mfreadwrite.lib;mf.lib;mfplat.lib;mfuuid.lib;strmiids.lib;Shlwapi.lib;d3d11.lib;Dxva2.lib;turbojpeg.lib;jpeg.lib;libpng16.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -161,19 +161,23 @@
     <ClInclude Include="Common.h" />
     <ClInclude Include="DxSample.h" />
     <ClInclude Include="ImageConvertClass.h" />
+    <ClInclude Include="Player.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="TopoBuilder.h" />
     <ClInclude Include="VAReaderWriterTranscoder.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DxSample.cpp" />
     <ClCompile Include="ImageConvertClass.cpp" />
+    <ClCompile Include="Player.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="TopoBuilder.cpp" />
     <ClCompile Include="VAReaderWriterTranscoder.cpp" />
   </ItemGroup>
   <ItemGroup>
