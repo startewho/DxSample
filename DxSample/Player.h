@@ -32,6 +32,7 @@ class CPlayer : public IMFAsyncCallback
 		HRESULT       OpenSource(IMFMediaSource * pSource);
         HRESULT       Play();
         HRESULT       Pause();
+		HRESULT       Stop();
         PlayerState   GetState() const { return m_state; }
 
         // Video functionality

@@ -22,8 +22,9 @@ INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
 
 
 //自定义字段
-
+CPlayer     *g_pPlayer = NULL;
 VACReaderWriterTranscoder* pTranscoder;
+CComPtr<IMFMediaSource> mixSource;
 HWND mHWND;
 HANDLE hThread;
 
@@ -83,11 +84,13 @@ HRESULT StartCap(HWND hwnd)
 	
 	DWORD dwThread;
 
+	
+
 	pTranscoder = new VACReaderWriterTranscoder();
-
-
+	
 
 	pTranscoder->Capting = true;
+
 	hThread=CreateThread( 
             NULL,                   // default security attributes
             0,                      // use default stack size  
@@ -96,7 +99,15 @@ HRESULT StartCap(HWND hwnd)
             0,                      // use default creation flags 
             &dwThread);   // returns the thread identifier 
 	
+	pTranscoder->GetMixSource(&mixSource);
+
+	g_pPlayer = new (std::nothrow) CPlayer(hwnd, &hr);
+
+	g_pPlayer->OpenSource(mixSource);
+
 	
+
+	g_pPlayer->Play();
 
 	return hr;
 
@@ -107,13 +118,29 @@ HRESULT StopCap(HWND hwnd)
 {
 	HRESULT hr = S_OK;
 
+	
+
+ 
 	pTranscoder->Capting = false;
+
+	if (g_pPlayer)
+	{
+
+		
+		g_pPlayer->Stop();
+		g_pPlayer->Release();
+
+	}
 
 	WaitForSingleObject(hThread, 1000);
 
 	pTranscoder->StopCature();
 	
 	CloseHandle(hThread);
+
+	
+
+	delete g_pPlayer;
 
 	delete pTranscoder;
 
@@ -198,11 +225,11 @@ void OnPaint(HWND hwnd)
 	PAINTSTRUCT ps;
 	HDC hdc = BeginPaint(hwnd, &ps);
 
-	if (pTranscoder)
+	if (g_pPlayer&&g_pPlayer->HasVideo())
 	{
 		// We have a player with an active topology and a video renderer that can paint the
 		// window surface - ask the videor renderer (through the player) to redraw the surface.
-		pTranscoder->Repaint();
+		g_pPlayer->Repaint();
 	}
 	else
 	{
@@ -276,7 +303,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         break;
 	
 	case WM_SIZE:
-		if (pTranscoder != NULL)
+		if (g_pPlayer != NULL)
 		{
 			LONG wdith = LOWORD(lParam); // resizing flag
 			LONG heigth = HIWORD(lParam);
@@ -285,7 +312,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			rect.left = 0.0;
 			rect.right = wdith;
 			rect.bottom = heigth;
-			pTranscoder->Resize(&rect);
+			g_pPlayer->Resize(&rect);
 		}
 		break;
     default:

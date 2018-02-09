@@ -40,14 +40,19 @@ CPlayer::~CPlayer(void)
 {
     CloseSession();
 
+	
+
     // Shutdown the Media Foundation platform
     MFShutdown();
+
+	
 
     // uninitialize COM
     CoUninitialize();
 
+	CloseHandle(m_closeCompleteEvent);
     // close the event
-    CloseHandle(m_closeCompleteEvent);
+    
 }
 
 
@@ -366,6 +371,36 @@ HRESULT CPlayer::Pause(void)
     return hr;
 }
 
+HRESULT CPlayer::Stop()
+{
+	HRESULT hr = S_OK;
+
+	do
+	{
+		CComCritSecLock<CComAutoCriticalSection> lock(m_critSec);
+
+		// pause makes sense only if playback has started
+		if (m_state != PlayerState_Started)
+		{
+			hr = MF_E_INVALIDREQUEST;
+			break;
+		}
+
+		// make sure the session has been created
+		BREAK_ON_NULL(m_pSession, E_UNEXPECTED);
+
+		// pause
+		hr = m_pSession->Pause();
+		hr = CloseSession();
+		BREAK_ON_FAIL(hr);
+
+		// if we got here, everything is properly paused
+		m_state = PlayerState_Stopped;
+	} while (false);
+
+	return hr;
+}
+
 //
 //  Repaints the video window - called from main windows message loop when WM_PAINT
 // is received.
@@ -502,7 +537,7 @@ HRESULT CPlayer::CloseSession(void)
                 // Begin waiting for the Win32 close event, fired in CPlayer::Invoke(). The 
                 // close event will indicate that the close operation is finished, and the 
                 // session can be shut down.
-                dwWaitResult = WaitForSingleObject(m_closeCompleteEvent, 5000);
+                dwWaitResult = WaitForSingleObject(m_closeCompleteEvent, 1000);
                 if (dwWaitResult == WAIT_TIMEOUT)
                 {
                     hr = E_UNEXPECTED;

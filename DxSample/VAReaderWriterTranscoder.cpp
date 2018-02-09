@@ -99,34 +99,14 @@ HRESULT VACReaderWriterTranscoder::StatrtCapture(LPCWSTR savePath, HWND  hwnd)
 		// create a source reader
 		hr = MFCreateSourceReaderFromMediaSource(m_pMixSource, pConfigAttrs, &m_pSourceReader);
 	
+		GUID pguidMajorType;
+		
 
 		IMFMediaType *pType = NULL;
 		if (SUCCEEDED(hr))
 			hr = m_pSourceReader->GetCurrentMediaType((DWORD)MF_SOURCE_READER_FIRST_VIDEO_STREAM, &pType);
+
 		
-
-		CComPtr<IMFMediaSink> pSink;
-	
-		CComPtr<IMFStreamSink> pStream;
-		CComPtr<IMFGetService> pService;
-		DWORD count;
-		DWORD pdwCharacteristics;
-		CComPtr<IMFPresentationClock> pClock;
-		
-		hr = MFCreateVideoRenderer(__uuidof(IMFMediaSink),(void**)(&pSink));
-
-		hr = pSink->GetStreamSinkCount(&count);
-		hr = pSink->GetCharacteristics(&pdwCharacteristics);
-		hr = pSink->AddStreamSink(2, pType, &pStream);
-		hr = pSink->GetPresentationClock(&pClock);
-		//§³§à§Ó§ã§Ö§Þ §ß§Ö §á§à§Û§Þ§å §é§ä§à §Þ§ß§Ö §ã§Õ§Ö§Ý§Ñ§ä§î §ã IMFPresentationClock
-
-		hr = pSink->QueryInterface(_uuidof(IMFGetService),(void**)&pService);
-		hr = pService->GetService(MR_VIDEO_RENDER_SERVICE, IID_IMFVideoDisplayControl,(void**)&m_pVideoDisplay);
-		hr = m_pVideoDisplay->SetVideoWindow(hwnd);
-
-
-
 
 		// create a sink writer
 		hr = MFCreateSinkWriterFromURL(savePath, NULL, pConfigAttrs, &m_pSinkWriter);
@@ -140,6 +120,38 @@ HRESULT VACReaderWriterTranscoder::StatrtCapture(LPCWSTR savePath, HWND  hwnd)
 		// map the streams found in the source file from the source reader to the
 		// sink writer, while negotiating media types
 		hr = MapStreams();
+
+
+
+		pType->GetMajorType(&pguidMajorType);
+
+		if (pguidMajorType == MFMediaType_Video)
+		{
+
+
+
+			//CComPtr<IMFMediaSink> pSink;
+
+			//CComPtr<IMFStreamSink> pStream;
+			//CComPtr<IMFGetService> pService;
+			//DWORD count;
+			//DWORD pdwCharacteristics;
+			//CComPtr<IMFPresentationClock> pClock;
+
+			//hr = MFCreateVideoRenderer(__uuidof(IMFMediaSink), (void**)(&pSink));
+			//hr = MFCreatePresentationClock(&pClock);
+			//hr = pSink->SetPresentationClock(pClock);
+			//hr = pSink->GetCharacteristics(&pdwCharacteristics);
+			//hr = pSink->AddStreamSink(1, pType, &pStream);
+
+			////§³§à§Ó§ã§Ö§Þ §ß§Ö §á§à§Û§Þ§å §é§ä§à §Þ§ß§Ö §ã§Õ§Ö§Ý§Ñ§ä§î §ã IMFPresentationClock
+
+			//hr = pSink->QueryInterface(_uuidof(IMFGetService), (void**)&pService);
+			//hr = pService->GetService(MR_VIDEO_RENDER_SERVICE, IID_IMFVideoDisplayControl, (void**)&m_pVideoDisplay);
+			//hr = m_pVideoDisplay->SetVideoWindow(hwnd);
+
+
+		}
 		
 		//Request all source.
 		
@@ -250,9 +262,28 @@ HRESULT VACReaderWriterTranscoder::Transcode(LPCWSTR source, LPCWSTR target)
   
 }
 
-IMFMediaSource * VACReaderWriterTranscoder::GetMixSource()
+HRESULT VACReaderWriterTranscoder::GetMixSource( IMFMediaSource** mixSource)
 {
-	return m_pMixSource;
+
+	HRESULT hr = S_OK;
+	CComPtr<IMFActivate> pCameraActiveate;
+	CComPtr<IMFActivate> pAudioActiveate;
+	hr = GetDevicesOfCat(MF_DEVSOURCE_ATTRIBUTE_SOURCE_TYPE_VIDCAP_GUID, pCameraActiveate);
+	hr = GetDevicesOfCat(MF_DEVSOURCE_ATTRIBUTE_SOURCE_TYPE_AUDCAP_GUID, pAudioActiveate);
+
+	CComPtr<IMFMediaSource> videoSource;
+	CComPtr<IMFMediaSource> aiduoSource;
+	CComPtr<IMFCollection> pCollection;
+	pCameraActiveate->ActivateObject(IID_PPV_ARGS(&videoSource));
+	pAudioActiveate->ActivateObject(IID_PPV_ARGS(&aiduoSource));
+
+	MFCreateCollection(&pCollection);
+
+	pCollection->AddElement(videoSource);
+	pCollection->AddElement(aiduoSource);
+	hr=MFCreateAggregateSource(pCollection, mixSource);
+
+	return hr;
 }
 
 HRESULT VACReaderWriterTranscoder::Repaint()

@@ -28,7 +28,7 @@
 		ImageType _imageType;
         // Start the transcode
         HRESULT Transcode(LPCWSTR source, LPCWSTR sink);
-		IMFMediaSource* GetMixSource();
+		HRESULT GetMixSource(IMFMediaSource** mixSource);
 
 		// Video functionality
 		HRESULT       Repaint();  //视频重绘
