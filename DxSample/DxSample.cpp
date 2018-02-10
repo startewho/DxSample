@@ -117,16 +117,16 @@ HRESULT StopCap(HWND hwnd)
 {
 	HRESULT hr = S_OK;
 
-	
-
- 
-	pTranscoder->Capting = false;
+	if (pTranscoder)
+	{
+		pTranscoder->Capting = false;
 
 	if (g_pPlayer)
 	{
 
-		
+		 
 		g_pPlayer->Stop();
+		mixSource = NULL;
 	
 
 	}
@@ -137,11 +137,17 @@ HRESULT StopCap(HWND hwnd)
 	
 	CloseHandle(hThread);
 
-	
-
 	delete g_pPlayer;
 
 	delete pTranscoder;
+
+	}
+
+ 
+
+	g_pPlayer = NULL;
+
+	pTranscoder = NULL;
 
 	return hr;
 }

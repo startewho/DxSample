@@ -559,8 +559,10 @@ HRESULT CPlayer::CloseSession(void)
             m_pSession->Shutdown();
         }
 
+		
         // release the session
         m_pSession = NULL;
+		m_pVideoDisplay = NULL;
 
         m_state = PlayerState_Closed;
     }
