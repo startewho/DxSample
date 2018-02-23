@@ -42,6 +42,9 @@ CPlayer::~CPlayer(void)
 	HRESULT hr = S_OK;
     CloseSession();
 
+
+	m_pSession = NULL;
+	m_pVideoDisplay = NULL;
 	
 
     // Shutdown the Media Foundation platform

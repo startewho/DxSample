@@ -17,6 +17,9 @@ bool DeleteExsitFile(wchar_t * &outFile)
 bool ImageConvertClass::ConvertDIBToJPG(unsigned char * buffer, int nWidth, int nHeight, wchar_t * outFile)
 {
 	jpeg_compress_struct jpegInfo;
+
+	memset(&jpegInfo, 0, sizeof(jpeg_compress_struct));
+	
 	jpeg_error_mgr errorMgr;
 	unsigned char* pJpegBuffer=NULL;
 	unsigned long outSize;
